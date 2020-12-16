@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+source utils.sh
+
+apt-get install -y \
+    postgresql \
+    postgresql-contrib \
+    || exit_on_error
+sudo pip3 install psycopg2-binary || exit_on_error

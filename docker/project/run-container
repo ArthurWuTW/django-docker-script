@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -x
+xhost +local:
+
+source $(dirname $0)/common.sh
+source $(dirname $0)/utils.sh
+
+GRAPHICS_OPTS="\
+    --env DISPLAY=$DISPLAY \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix \
+"
+PORT_MAPPING_OPTS="\
+    -p 0.0.0.0:8000:8000  \
+"
+
+DATABASE_OPTS="\
+     --volume $HOME/Desktop/django_project/data_directory/postgresql:/var/lib/postgresql \
+"
+# --volume $HOME/Desktop/django_project/data_config/postgresql:/etc/postgresql \
+
+# NETWORKING_OPTS="\
+#     --env ROS_MASTER_URI="http://$HOSTNAME:11311" \
+#     --network host \
+#     --volume $HOME/.ssh:$CONTAINER_HOME/.ssh:ro \
+#     --cap-add=NET_ADMIN \
+# "
+
+# NVIDIA_OPTS="\
+#     --env NVIDIA_VISIBLE_DEVICES=all \
+#     --env NVIDIA_DRIVER_CAPABILITIES=compute,graphics,utility \
+#     --runtime=nvidia \
+#     --volume ${NVIDIA_DRIVER_DIR}libnvcuvid.so:/usr/lib/libnvcuvid.so \
+#     --volume /dev:/dev \
+# "
+
+AUDIO_OPTS="\
+    --env PULSE_SERVER=unix:/tmp/pulseaudio.socket \
+    --env PULSE_COOKIE=/tmp/pulseaudio.cookie \
+    --volume /tmp/pulseaudio.socket:/tmp/pulseaudio.socket \
+    --volume /tmp/pulseaudio.client.conf:/etc/pulse/client.conf \
+    --device /dev/snd \
+"
+parse_arguments() {
+    COMMAND=""
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --no-gui)
+                NO_GUI=1
+                echo "Disable GUI"
+            shift;;
+            --no-sdc-config-dir)
+                NO_SDC_CONFIG_DIR=1
+                echo "Disable vehicle configuration"
+            shift;;
+            --release-persistent-volume)
+                release_persistent_volume
+            shift;;
+            *)
+                COMMAND+="$1 "
+            shift;;
+        esac
+    done
+}
+
+release_persistent_volume() {
+    echo Releasing persistent volume ...
+    docker volume rm ${CONTAINER_PERSISTENT_VOLUME:?} || exit_on_error
+}
+
+machine_container_volumes() {
+    local volumes
+    local options
+
+    if [ -f $MACHINE_CONFIG_DIR/container-volumes ]; then
+        volumes=$( \
+            cat $MACHINE_CONFIG_DIR/container-volumes | \
+            grep -v "^#" \
+        )
+    fi
+    volumes="$volumes $SDC_CONTAINER_VOLUMES"
+
+    if [ ! -z "$volumes" ]; then
+        echo_stderr "Machine specific mounts:"
+        for entry in $volumes; do
+            local option="--volume $entry"
+            echo_stderr $option
+            options+="$option "
+        done
+        echo $options
+    fi
+}
+
+machine_container_options() {
+    local volumes
+    local options
+
+    if [ -f $MACHINE_CONFIG_DIR/container-options ]; then
+        options=$( \
+            cat $MACHINE_CONFIG_DIR/container-options | \
+            grep -v "^#" \
+        )
+    fi
+    options="$options $SDC_CONTAINER_OPTIONS"
+
+    if [ ! -z "$options" ]; then
+        echo_stderr "Machine specific options:"
+        echo_stderr "$options"
+
+        echo $options
+    fi
+}
+
+machine_options() {
+    machine_container_volumes
+    machine_container_options
+}
+
+run_container() {
+    if [ -e "/dev/nvidia-modeset" ]; then
+        NVIDIA_OPTS+="\
+            --device /dev/nvidia-modeset
+        "
+    fi
+
+    if [ ! -z "$NO_GUI" ]; then
+        unset GRAPHICS_OPTS
+    fi
+
+    if [ "$DISABLE_VAAPI" != "1" ]; then
+        NVIDIA_OPTS+="\
+            --volume ${NVIDIA_DRIVER_DIR}vdpau:/usr/lib/x86_64-linux-gnu/vdpau:ro \
+        "
+    fi
+
+    docker run \
+        --privileged \
+        --name $CONTAINER_NAME \
+        --rm \
+        --user $CONTAINER_USER \
+        --volume $REPO_DIR:$CONTAINER_REPO_DIR \
+        --volume ${CONTAINER_PERSISTENT_VOLUME:?}:$CONTAINER_PERSISTENT_DIR \
+        --volume $HOME/Desktop:/home/$CONTAINER_USER/Desktop \
+        $EXTRA_CONTAINER_OPTS \
+        $GRAPHICS_OPTS \
+        $AUDIO_OPTS \
+        $PORT_MAPPING_OPTS \
+        $DATABASE_OPTS \
+        $IMAGE_NAME \
+        $COMMAND || exit_on_error
+}
+
+parse_arguments $@
+run_container $@
