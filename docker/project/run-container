@@ -16,22 +16,6 @@ PORT_MAPPING_OPTS="\
 DATABASE_OPTS="\
      --volume $HOME/Desktop/django_project/data_directory/postgresql:/var/lib/postgresql \
 "
-# --volume $HOME/Desktop/django_project/data_config/postgresql:/etc/postgresql \
-
-# NETWORKING_OPTS="\
-#     --env ROS_MASTER_URI="http://$HOSTNAME:11311" \
-#     --network host \
-#     --volume $HOME/.ssh:$CONTAINER_HOME/.ssh:ro \
-#     --cap-add=NET_ADMIN \
-# "
-
-# NVIDIA_OPTS="\
-#     --env NVIDIA_VISIBLE_DEVICES=all \
-#     --env NVIDIA_DRIVER_CAPABILITIES=compute,graphics,utility \
-#     --runtime=nvidia \
-#     --volume ${NVIDIA_DRIVER_DIR}libnvcuvid.so:/usr/lib/libnvcuvid.so \
-#     --volume /dev:/dev \
-# "
 
 AUDIO_OPTS="\
     --env PULSE_SERVER=unix:/tmp/pulseaudio.socket \
