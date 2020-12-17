@@ -55,7 +55,7 @@ DATABASE_OPTS="\
 
 docker run \
     ...
-# Delete the line to disable custom settings
+# Delete the specific line if you want to disable custom settings
     $PORT_MAPPING_OPTS \
     $DATABASE_OPTS \
     ...
