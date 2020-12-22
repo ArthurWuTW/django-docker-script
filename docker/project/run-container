@@ -14,7 +14,7 @@ PORT_MAPPING_OPTS="\
 "
 
 DATABASE_OPTS="\
-     --volume $HOME/Desktop/django_project/data_directory/postgresql:/var/lib/postgresql \
+     --volume $DJANGO_DIR/data_directory/postgresql:/var/lib/postgresql \
 "
 
 AUDIO_OPTS="\
@@ -28,17 +28,6 @@ parse_arguments() {
     COMMAND=""
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --no-gui)
-                NO_GUI=1
-                echo "Disable GUI"
-            shift;;
-            --no-sdc-config-dir)
-                NO_SDC_CONFIG_DIR=1
-                echo "Disable vehicle configuration"
-            shift;;
-            --release-persistent-volume)
-                release_persistent_volume
-            shift;;
             *)
                 COMMAND+="$1 "
             shift;;
@@ -49,54 +38,6 @@ parse_arguments() {
 release_persistent_volume() {
     echo Releasing persistent volume ...
     docker volume rm ${CONTAINER_PERSISTENT_VOLUME:?} || exit_on_error
-}
-
-machine_container_volumes() {
-    local volumes
-    local options
-
-    if [ -f $MACHINE_CONFIG_DIR/container-volumes ]; then
-        volumes=$( \
-            cat $MACHINE_CONFIG_DIR/container-volumes | \
-            grep -v "^#" \
-        )
-    fi
-    volumes="$volumes $SDC_CONTAINER_VOLUMES"
-
-    if [ ! -z "$volumes" ]; then
-        echo_stderr "Machine specific mounts:"
-        for entry in $volumes; do
-            local option="--volume $entry"
-            echo_stderr $option
-            options+="$option "
-        done
-        echo $options
-    fi
-}
-
-machine_container_options() {
-    local volumes
-    local options
-
-    if [ -f $MACHINE_CONFIG_DIR/container-options ]; then
-        options=$( \
-            cat $MACHINE_CONFIG_DIR/container-options | \
-            grep -v "^#" \
-        )
-    fi
-    options="$options $SDC_CONTAINER_OPTIONS"
-
-    if [ ! -z "$options" ]; then
-        echo_stderr "Machine specific options:"
-        echo_stderr "$options"
-
-        echo $options
-    fi
-}
-
-machine_options() {
-    machine_container_volumes
-    machine_container_options
 }
 
 run_container() {

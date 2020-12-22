@@ -18,3 +18,5 @@ CONTAINER_NAME=project
 #     tail -1 | \
 #     grep -oh "/.*/" \
 # )
+
+DJANGO_DIR=$HOME/Desktop/django_project

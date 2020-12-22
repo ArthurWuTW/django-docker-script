@@ -53,6 +53,16 @@ COPY install-postgresql utils.sh ./
 RUN ./install-postgresql && \
   rm install-postgresql utils.sh
 
+# Install OpenGL and OpenCV
+COPY install-opengl-opencv utils.sh ./
+RUN ./install-opengl-opencv && \
+  rm install-opengl-opencv utils.sh
+
+# Install Selenium Firefox Dependencies
+COPY install-selenium-firefox-dependencies utils.sh ./
+RUN ./install-selenium-firefox-dependencies && \
+  rm install-selenium-firefox-dependencies utils.sh
+
 COPY enter-container-shell \
     infinite-loop \
     /usr/local/bin/

@@ -10,4 +10,5 @@ apt-get install -y \
     iputils-ping \
     net-tools \
     vim \
+    htop \
     || exit_on_error
