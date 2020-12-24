@@ -9,9 +9,6 @@ GRAPHICS_OPTS="\
     --env DISPLAY=$DISPLAY \
     --volume /tmp/.X11-unix:/tmp/.X11-unix \
 "
-PORT_MAPPING_OPTS="\
-    -p 0.0.0.0:8000:8000  \
-"
 
 DATABASE_OPTS="\
      --volume $DJANGO_DIR/data_directory/postgresql:/var/lib/postgresql \
@@ -68,7 +65,6 @@ run_container() {
         $EXTRA_CONTAINER_OPTS \
         $GRAPHICS_OPTS \
         $AUDIO_OPTS \
-        $PORT_MAPPING_OPTS \
         $DATABASE_OPTS \
         $IMAGE_NAME \
         $COMMAND || exit_on_error
