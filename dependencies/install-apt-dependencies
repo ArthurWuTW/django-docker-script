@@ -11,4 +11,5 @@ apt-get install -y \
     net-tools \
     vim \
     htop \
+    curl \
     || exit_on_error
