@@ -53,6 +53,11 @@ COPY install-postgresql utils.sh ./
 RUN ./install-postgresql && \
   rm install-postgresql utils.sh
 
+# Install Redis
+COPY install-redis utils.sh ./
+RUN ./install-redis && \
+  rm install-redis utils.sh
+
 # Install OpenGL and OpenCV
 COPY install-opengl-opencv utils.sh ./
 RUN ./install-opengl-opencv && \

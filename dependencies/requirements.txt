@@ -13,3 +13,5 @@ django-bootstrap4==2.2.0
 termcolor
 selenium
 whitenoise
+django-debug-toolbar
+django-redis
