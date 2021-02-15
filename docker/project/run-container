@@ -10,12 +10,9 @@ GRAPHICS_OPTS="\
     --volume /tmp/.X11-unix:/tmp/.X11-unix \
 "
 
-DATABASE_OPTS="\
-     --volume $DJANGO_DIR/data_directory/postgresql:/var/lib/postgresql \
-"
 
 PORT_MAPPING_OPTS="\
-    -p 2645:5432
+    -p 5555:8000
 "
 
 AUDIO_OPTS="\
@@ -66,11 +63,11 @@ run_container() {
         --volume $REPO_DIR:$CONTAINER_REPO_DIR \
         --volume ${CONTAINER_PERSISTENT_VOLUME:?}:$CONTAINER_PERSISTENT_DIR \
         --volume $HOME/Desktop:/home/$CONTAINER_USER/Desktop \
+        --volume /mnt/remote:/mnt/remote \
         $EXTRA_CONTAINER_OPTS \
         $GRAPHICS_OPTS \
         $PORT_MAPPING_OPTS \
         $AUDIO_OPTS \
-        $DATABASE_OPTS \
         $IMAGE_NAME \
         $COMMAND || exit_on_error
 }
