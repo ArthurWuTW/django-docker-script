@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
+sudo sshfs -o allow_other arthur@10.1.1.2:/home/arthur/Desktop/django_project/monitor_app/static /mnt/remote
+
 $(dirname $0)/project/pulseaudio_socket
 $(dirname $0)/project/start-container $@ infinite-loop
