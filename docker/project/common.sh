@@ -19,4 +19,4 @@ CONTAINER_NAME=project
 #     grep -oh "/.*/" \
 # )
 
-DJANGO_DIR=$HOME/Desktop/django_project
+DB_TMP_DIR=$HOME/Desktop/db_tmp

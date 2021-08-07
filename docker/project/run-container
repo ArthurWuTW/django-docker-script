@@ -11,7 +11,7 @@ GRAPHICS_OPTS="\
 "
 
 DATABASE_OPTS="\
-     --volume $DJANGO_DIR/data_directory/postgresql:/var/lib/postgresql \
+     --volume $DB_TMP_DIR/postgresql:/var/lib/postgresql \
 "
 
 PORT_MAPPING_OPTS="\
@@ -39,6 +39,7 @@ run_container() {
         --volume $REPO_DIR:$CONTAINER_REPO_DIR \
         --volume ${CONTAINER_PERSISTENT_VOLUME:?}:$CONTAINER_PERSISTENT_DIR \
         --volume $HOME/Desktop:/home/$CONTAINER_USER/Desktop \
+        $DATABASE_OPTS \
         $EXTRA_CONTAINER_OPTS \
         $GRAPHICS_OPTS \
         $PORT_MAPPING_OPTS \
