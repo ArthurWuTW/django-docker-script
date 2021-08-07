@@ -15,16 +15,9 @@ DATABASE_OPTS="\
 "
 
 PORT_MAPPING_OPTS="\
-    -p 2645:5432
+    -p 5432:5432
 "
 
-AUDIO_OPTS="\
-    --env PULSE_SERVER=unix:/tmp/pulseaudio.socket \
-    --env PULSE_COOKIE=/tmp/pulseaudio.cookie \
-    --volume /tmp/pulseaudio.socket:/tmp/pulseaudio.socket \
-    --volume /tmp/pulseaudio.client.conf:/etc/pulse/client.conf \
-    --device /dev/snd \
-"
 parse_arguments() {
     COMMAND=""
     while [[ $# -gt 0 ]]; do
@@ -36,27 +29,7 @@ parse_arguments() {
     done
 }
 
-release_persistent_volume() {
-    echo Releasing persistent volume ...
-    docker volume rm ${CONTAINER_PERSISTENT_VOLUME:?} || exit_on_error
-}
-
 run_container() {
-    if [ -e "/dev/nvidia-modeset" ]; then
-        NVIDIA_OPTS+="\
-            --device /dev/nvidia-modeset
-        "
-    fi
-
-    if [ ! -z "$NO_GUI" ]; then
-        unset GRAPHICS_OPTS
-    fi
-
-    if [ "$DISABLE_VAAPI" != "1" ]; then
-        NVIDIA_OPTS+="\
-            --volume ${NVIDIA_DRIVER_DIR}vdpau:/usr/lib/x86_64-linux-gnu/vdpau:ro \
-        "
-    fi
 
     docker run \
         --privileged \
@@ -69,8 +42,6 @@ run_container() {
         $EXTRA_CONTAINER_OPTS \
         $GRAPHICS_OPTS \
         $PORT_MAPPING_OPTS \
-        $AUDIO_OPTS \
-        $DATABASE_OPTS \
         $IMAGE_NAME \
         $COMMAND || exit_on_error
 }
