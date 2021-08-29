@@ -1,23 +1,14 @@
 #!/usr/bin/env bash
-set -x
-xhost +local:
 
 source $(dirname $0)/common.sh
 source $(dirname $0)/utils.sh
 
+export IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+
 GRAPHICS_OPTS="\
-    --env DISPLAY=$DISPLAY \
+    --env DISPLAY=$IP:0 \
     --volume /tmp/.X11-unix:/tmp/.X11-unix \
 "
-
-DATABASE_OPTS="\
-     --volume $DB_TMP_DIR/postgresql:/var/lib/postgresql \
-"
-
-PORT_MAPPING_OPTS="\
-    -p 5432:5432
-"
-
 parse_arguments() {
     COMMAND=""
     while [[ $# -gt 0 ]]; do
@@ -29,20 +20,18 @@ parse_arguments() {
     done
 }
 
+
 run_container() {
 
     docker run \
-        --privileged \
+        --privileged=true \
         --name $CONTAINER_NAME \
         --rm \
-        --user $CONTAINER_USER \
-        --volume $REPO_DIR:$CONTAINER_REPO_DIR \
-        --volume ${CONTAINER_PERSISTENT_VOLUME:?}:$CONTAINER_PERSISTENT_DIR \
         --volume $HOME/Desktop:/home/$CONTAINER_USER/Desktop \
-        $DATABASE_OPTS \
+        --user $CONTAINER_USER \
+        -p 7001:7001 \
         $EXTRA_CONTAINER_OPTS \
         $GRAPHICS_OPTS \
-        $PORT_MAPPING_OPTS \
         $IMAGE_NAME \
         $COMMAND || exit_on_error
 }

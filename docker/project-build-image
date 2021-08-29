@@ -3,8 +3,8 @@
 source $(dirname $0)/project/common.sh
 source $(dirname $0)/project/utils.sh
 
-HOST_USER_GID=$(id --group)
-HOST_USER_UID=$(id --user)
+HOST_USER_GID=1000
+HOST_USER_UID=1000
 EXTRA_ARGS=$@
 
 list_dangling_images() {
@@ -14,12 +14,10 @@ list_dangling_images() {
 build_image() {
     docker build \
         --build-arg CONTAINER_HOME=${CONTAINER_HOME:?} \
-        --build-arg CONTAINER_PERSISTENT_DIR=${CONTAINER_PERSISTENT_DIR:?} \
-        --build-arg CONTAINER_REPO_DIR=${CONTAINER_REPO_DIR:?} \
         --build-arg CONTAINER_USER=${CONTAINER_USER:?} \
         --build-arg HOST_USER_GID=${HOST_USER_GID:?} \
         --build-arg HOST_USER_UID=${HOST_USER_UID:?} \
-        --build-arg TIMEZONE=$(cat /etc/timezone) \
+        --build-arg TIMEZONE=Asia/Taipei \
         --tag $IMAGE_NAME \
         $EXTRA_ARGS \
         $DOCKER_DIR || exit_on_error
