@@ -36,8 +36,6 @@ run_container() {
         --name $CONTAINER_NAME \
         --rm \
         --user $CONTAINER_USER \
-        --volume $REPO_DIR:$CONTAINER_REPO_DIR \
-        --volume ${CONTAINER_PERSISTENT_VOLUME:?}:$CONTAINER_PERSISTENT_DIR \
         --volume $HOME/Desktop:/home/$CONTAINER_USER/Desktop \
         $DATABASE_OPTS \
         $EXTRA_CONTAINER_OPTS \
